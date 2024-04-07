@@ -69,4 +69,31 @@ model.compile(optimizer='adam',loss='mean_squared_error')
 model.fit(x_train,y_train,epochs=50)
 
 model.save('keras_model.h5')  # As Model Here is trained by these around 50 epoch
-
+data_testing.head()
+data_training.tail(100)
+past_100_days=data_training.tail(100)
+final_df = pd.concat([past_100_days, data_testing], ignore_index=True)
+final_df.head()
+input_data=scaler.fit_transform(final_df)
+input_data
+x_test=[]
+y_test=[]
+for i in range(100,input_data.shape[0]):
+  x_test.append(input_data[i-100:i])
+  y_test.append(input_data[i,0])
+x_test,y_test=np.array(x_test),np.array(y_test)
+#Predixtions starts here
+y_predicted=model.predict(x_test)
+y_predicted.shape
+y_test
+y_predicted
+scale_factor=1/0.02123255
+y_predicted=y_predicted*scale_factor
+y_test*=scale_factor
+plt.figure(figsize=(12,6))
+plt.plot(y_test,'b',label='Original Price')
+plt.plot(y_predicted,'r',label='Predicted Price')
+plt.xlabel('Time')
+plt.ylabel('Price')
+plt.legend()
+plt.show()
