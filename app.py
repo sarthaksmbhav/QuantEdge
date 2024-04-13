@@ -5,35 +5,37 @@ import pandas_datareader as data
 import yfinance as yf
 from sklearn.preprocessing import MinMaxScaler
 from keras.layers import Dense,Dropout,LSTM
-from keras.models import Sequential
+from keras.models import Sequential,load_model
+import streamlit as st
 start = '2010-01-01'
 end = '2019-12-31'
 st.title('QuantEdge')
 user_input=st.text_input('Enter Stock in box','AAPL')
-df=data.DataReader(user_input,'yahoo',start,end)
+df = yf.download(user_input, start=start, end=end)
+df=df.drop(['Adj Close'],axis= 1)
+
 
 st.subheader('Data from 2010-2019')
 st.write(df.describe())
-
 st.subheader('Closing Price vs Time Chart')
 fig=plt.figure(figsize=(12,6))
-plt.plot(df.close)
+plt.plot(df.Close)
 st.pyplot(fig)
 
 st.subheader('Closing Price vs Time Chart with 100 Moving Average')
-ma100=df.close.rolling(100).mean()
+ma100=df.Close.rolling(100).mean()
 fig=plt.figure(figsize=(12,6))
 plt.plot(ma100)
-plt.plot(df.close)
+plt.plot(df.Close)
 st.pyplot(fig)
 
 st.subheader('Closing Price vs Time Chart with 100 & 200 Moving Average')
-ma100=df.close.rolling(100).mean()
-ma200=df.close.rolling(200).mean()
+ma100=df.Close.rolling(100).mean()
+ma200=df.Close.rolling(200).mean()
 fig=plt.figure(figsize=(12,6))
 plt.plot(ma100)
 plt.plot(ma200)
-plt.plot(df.close)
+plt.plot(df.Close)
 st.pyplot(fig)
 
 data_training=pd.DataFrame(df['Close'][0:int(len(df)*0.70)])
@@ -59,10 +61,10 @@ y_predicted=y_predicted*scale_factor
 y_test*=scale_factor
 
 st.subheader('Predictions V/S Original',)
-plt.figure(figsize=(12,6))
+fig2=plt.figure(figsize=(12,6))
 plt.plot(y_test,'b',label='Original Price')
 plt.plot(y_predicted,'r',label='Predicted Price')
 plt.xlabel('Time')
 plt.ylabel('Price')
 plt.legend()
-plt.show()
+st.pyplot(fig2)
